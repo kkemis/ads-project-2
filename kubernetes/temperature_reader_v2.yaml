@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temperature-reader
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: temperature-reader
+  template:
+    metadata:
+      labels:
+        app: temperature-reader
+    spec:
+      containers:
+      - name: temperature-reader
+        image: temperature_reader:v2
+        imagePullPolicy: Never
+        env:
+          - name: TOPIC
+            value: "temperature"
