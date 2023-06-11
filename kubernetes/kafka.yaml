@@ -1,15 +1,28 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: kafka-svc
+  name: kafka-svc-internal
   labels:
     app: kafka-app
 spec:
   clusterIP: None
   ports:
-    - name: '9092'
+    - protocol: TCP
       port: 9092
-      protocol: TCP
+      targetPort: 9092
+  selector:
+    app: kafka-app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-svc-external
+  labels:
+    app: kafka-app
+spec:
+  ports:
+    - protocol: TCP
+      port: 9092
       targetPort: 9092
   selector:
     app: kafka-app
@@ -21,7 +34,7 @@ metadata:
   labels:
     app: kafka-app
 spec:
-  serviceName: kafka-svc
+  serviceName: kafka-svc-internal
   replicas: 3
   selector:
     matchLabels:
@@ -41,7 +54,7 @@ spec:
             - name: REPLICAS
               value: '3'
             - name: SERVICE
-              value: kafka-svc
+              value: kafka-svc-internal
             - name: NAMESPACE
               value: default
             - name: CLUSTER_ID

@@ -14,17 +14,23 @@ Na výstupu bude vypisovat aplikace ke každé zprávě unikátní identifikáto
 Zajistěte, aby aplikace temperature_reader běžela v Kubernetu ve dvou instancích.
 Zajistěte, aby parametr “topic” pro temperature_reader byl konfigurovatelný z Kubernetes.
 Vyzkoušejte rolling update aplikace temperature_reader.
+## Diagram
+![Alt text](diagram.svg)
 ## Přístup k dockeru v minikube
 ```bash
 & minikube -p minikube docker-env --shell powershell | Invoke-Expression
 ```
-## Sestavení image verze 1
+## Sestavení image producera verze 1
 ```cmd
-docker build -t temperature_reader:v1 .\app\v1
+docker build -t producer:v1 .\apps\producer\
 ```
-## Sestavení image verze 2
+## Sestavení image consumera verze 1
 ```cmd
-docker build -t temperature_reader:v2 .\app\v2
+docker build -t temperature_reader:v1 .\apps\temperature_reader\v1
+```
+## Sestavení image consumera verze 2
+```cmd
+docker build -t temperature_reader:v2 .\apps\temperature_reader\v2
 ```
 ## Spuštění Kafky
 ```cmd
@@ -32,15 +38,19 @@ kubectl apply -f .\kubernetes\kafka.yaml
 ```
 ## Přípojení do Podu
 ```cmd
-kubectl exec --stdin --tty kafka-0 -- /bin/bash
+kubectl exec --stdin --tty kafka-2 -- /bin/bash
 ```
 ## Vytvoření topiku
 ```bash
-kafka-topics.sh --create --bootstrap-server kafka-svc:9092 --topic temperature --partitions 4 --replication-factor 3
+kafka-topics.sh --create --bootstrap-server kafka-svc-external:9092 --topic temperature --partitions 4 --replication-factor 3
 ```
-## Spuštění producera
+## Spuštění producera CLI
 ```bash
-kafka-console-producer.sh --bootstrap-server kafka-svc:9092 --topic temperature
+kafka-console-producer.sh --bootstrap-server kafka-svc-external:9092 --topic temperature
+```
+## Spuštění producera 
+```cmd
+kubectl apply -f .\kubernetes\producer.yaml
 ```
 ## Spuštění aplikace verze 1 
 ```cmd
@@ -55,6 +65,5 @@ kubectl apply -f .\kubernetes\temperature_reader_v2.yaml
 kubectl rollout undo deployment temperature-reader
 ```
 ## Zdroje
-kubectl rollout undo deployment temperature-reader
 https://learnk8s.io/kafka-ha-kubernetes  
 https://github.com/IBM/kraft-mode-kafka-on-kubernetes/tree/main
