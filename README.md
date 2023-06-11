@@ -16,9 +16,13 @@ Zajistěte, aby parametr “topic” pro temperature_reader byl konfigurovateln�
 Vyzkoušejte rolling update aplikace temperature_reader.
 ## Diagram
 ![Alt text](diagram.svg)
-## Přístup k dockeru v minikube
+## Přístup k dockeru v minikube (Windows)
 ```bash
 & minikube -p minikube docker-env --shell powershell | Invoke-Expression
+```
+## Přístup k dockeru v minikube (Linux)
+```cmd
+eval $(minikube docker-env)
 ```
 ## Sestavení image producera verze 1
 ```cmd
